@@ -1,7 +1,8 @@
 #### Request ####
 
-# Name of the tree to execute
-string target_tree
+bool is_xml
+# Name of the tree to execute if !isXML else an XML payload for the tree
+string tree
 # Optional, implementation-dependent, payload.
 string payload
 ---

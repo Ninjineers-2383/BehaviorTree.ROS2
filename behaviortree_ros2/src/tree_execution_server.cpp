@@ -127,9 +127,9 @@ TreeExecutionServer::handle_goal(const rclcpp_action::GoalUUID& /* uuid */,
                                  std::shared_ptr<const ExecuteTree::Goal> goal)
 {
   RCLCPP_INFO(kLogger, "Received goal request to execute Behavior Tree: %s",
-              goal->target_tree.c_str());
+              goal->tree.c_str());
 
-  if(!onGoalReceived(goal->target_tree, goal->payload))
+  if(!onGoalReceived(goal->tree, goal->payload))
   {
     return rclcpp_action::GoalResponse::REJECT;
   }
@@ -180,8 +180,16 @@ void TreeExecutionServer::execute(
     // This blackboard will be owned by "MainTree". It parent is p_->global_blackboard
     auto root_blackboard = BT::Blackboard::create(p_->global_blackboard);
 
-    p_->tree = p_->factory.createTree(goal->target_tree, root_blackboard);
-    p_->tree_name = goal->target_tree;
+    if(goal->is_xml)
+    {
+      p_->tree = p_->factory.createTreeFromText(goal->tree, root_blackboard);
+      p_->tree_name = p_->tree.rootNode()->name();
+    }
+    else
+    {
+      p_->tree = p_->factory.createTree(goal->tree, root_blackboard);
+      p_->tree_name = goal->tree;
+    }
     p_->payload = goal->payload;
 
     // call user defined function after the tree has been created
